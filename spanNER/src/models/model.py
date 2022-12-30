@@ -5,11 +5,12 @@ from transformers import LongformerForMaskedLM, LongformerModel, LongformerToken
 import pytorch_lightning as pl
 import torch.nn as nn
 import torch
-from common.utils import get_dataset, to_jsonl
+from common.utils import get_dataset, to_jsonl, create_inference_dataset
 from common.loss import FocalLoss
 from sklearn.metrics import classification_report, precision_recall_fscore_support, accuracy_score
 from omegaconf import OmegaConf
 import ipdb
+import re
 
 
 class spanNER(pl.LightningModule):
@@ -261,6 +262,11 @@ class spanNER(pl.LightningModule):
         logits = self(**batch)
         preds = torch.argmax(logits, dim=-1)
         spans = batch["spans"]
+        texts = batch["texts"]
+        tokens = batch["tokens"]
+
+        inference_dataset, entity_labels, entity_loss_weights = create_inference_dataset(
+        self.args, [])
 
         flattened_spans = [span for sample in spans for span in sample]
         spans_w_preds = torch.tensor([(span[0], span[1], pred.cpu().detach().item())
@@ -270,9 +276,30 @@ class spanNER(pl.LightningModule):
             sample_idx)] for sample_idx in span_mask.unique()]
 
         predictions_with_labels = [[(span[0], span[1], entity_labels[span[2]]) for span in sample.cpu().detach().tolist() if span[2] != 0]
-                               for x in outputs for sample in reconstructed_preds]
+                               for sample in reconstructed_preds]
+        
+        prediction_dicts = []
 
-        return 
+        for idx,sample in enumerate(predictions_with_labels):
+            prediction_dict = {}
+            prediction_dict['text'] = texts[idx]
+            sample_tokens  = tokens[idx]
+            sample_spans = sample
+            predictions = []
+
+            for span in sample_spans:
+                span_tokens = sample_tokens[span[0]:span[1]]
+                span_label = span[2]
+                span = self.tokenizer.convert_tokens_to_string(span_tokens)
+                indices_object = re.finditer(pattern=span, string=texts[idx])
+                indices = [index.span() for index in indices_object]
+                span_predictions = [(index[0],index[1],span_label) for index in indices]
+                predictions.extend(span_predictions)
+            
+            prediction_dict['predictions'] = predictions
+            prediction_dicts.append(prediction_dict)
+
+        return prediction_dicts
 
     # Freeze weights?
     def configure_optimizers(self):
