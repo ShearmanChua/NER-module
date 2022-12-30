@@ -259,11 +259,11 @@ class spanNER(pl.LightningModule):
     def predict_step(self, batch, batch_idx):
         doc_keys = batch.pop("doc_keys", None)
         span_mask = batch["span_mask"]
-        logits = self(**batch)
-        preds = torch.argmax(logits, dim=-1)
         spans = batch["spans"]
-        texts = batch["texts"]
-        tokens = batch["tokens"]
+        texts = batch.pop("texts")
+        tokens = batch.pop("tokens")
+        loss, logits = self(**batch)
+        preds = torch.argmax(logits, dim=-1)
 
         inference_dataset, entity_labels, entity_loss_weights = create_inference_dataset(
         self.args, [])
@@ -289,17 +289,24 @@ class spanNER(pl.LightningModule):
 
             for span in sample_spans:
                 span_tokens = sample_tokens[span[0]:span[1]]
+                # print("span_tokens:",span_tokens)
                 span_label = span[2]
-                span = self.tokenizer.convert_tokens_to_string(span_tokens)
-                indices_object = re.finditer(pattern=span, string=texts[idx])
-                indices = [index.span() for index in indices_object]
-                span_predictions = [(index[0],index[1],span_label) for index in indices]
-                predictions.extend(span_predictions)
+                try:
+                    span = self.tokenizer.convert_tokens_to_string(span_tokens)
+                    indices_object = re.finditer(pattern=span, string=texts[idx])
+                    indices = [index.span() for index in indices_object]
+                    span_predictions = [(index[0],index[1],span_label) for index in indices]
+                    predictions.extend(span_predictions)
+                except:
+                    print("Unable to process tokens: ", span_tokens)
             
             prediction_dict['predictions'] = predictions
             prediction_dicts.append(prediction_dict)
 
         return prediction_dicts
+
+    def predict_step_end(self, outputs):
+        return outputs
 
     # Freeze weights?
     def configure_optimizers(self):

@@ -204,7 +204,9 @@ class InferenceDataset(Dataset):
             filtered_spans = []
 
             spans = enumerate_spans(
-                sentence=doc["tokens"][0][:self.cfg.max_length-2], max_span_width=self.cfg.max_span_length)
+                sentence=doc["tokens"][:self.cfg.max_length-2], max_span_width=self.cfg.max_span_length)
+
+            # print(spans)
 
             for span in spans:
                 candidate = [*span[:-1]]
@@ -226,7 +228,7 @@ class InferenceDataset(Dataset):
                 text, padding="max_length", truncation=True, max_length=self.cfg.max_length, return_tensors="pt")
             tokenizer_tokens = self.tokenizer.tokenize(text)
             encoded_docs.append(
-                {**doc, "input_ids": encodings["input_ids"], "attention_mask": encodings["attention_mask"], "tokenizer_tokens": tokenizer_tokens})
+                {**doc, "input_ids": encodings["input_ids"], "attention_mask": encodings["attention_mask"], "tokens": tokenizer_tokens})
         return encoded_docs
 
     def __len__(self):
@@ -261,12 +263,14 @@ class InferenceDataset(Dataset):
             entity_span.append(batch_spans)
             labels += batch_labels
             texts.append(ex['text'])
-            tokens.append(ex['tokenizer_tokens'])
+            tokens.append(ex['tokens'])
 
         labels = torch.tensor(labels)
         span_mask = torch.tensor(span_mask)
-        texts = torch.tensor(texts)
-        tokens = torch.tensor(tokens)
+        # texts = torch.tensor(texts)
+        # tokens = torch.tensor(tokens)
+        # print(texts)
+        # print(tokens)
 
         return {
             "input_ids": input_ids,

@@ -14,6 +14,8 @@ import json
 from models.model import spanNER
 from common.utils import get_dataset, get_clearml_file_path, config_clearml_paths, create_inference_dataset
 from clearml import Task
+import pandas as pd
+import jsonlines
 
 
 Task.force_requirements_env_freeze(
@@ -113,6 +115,10 @@ def predict(cfg, docs: List[Dict]):
     
     trainer = pl.Trainer(gpus=cfg.gpu)
     predictions = trainer.predict(model, inference_loader)
+    print(predictions)
+    resultfile = open("/home/shearman/Desktop/work/NER-module/spanNER/data/predictions.jsonl", "wb")
+    writer = jsonlines.Writer(resultfile)
+    writer.write_all(predictions)
 
 
 @ hydra.main(config_path=os.path.join("..", "config"), config_name="config")
@@ -149,8 +155,10 @@ def hydra_main(cfg) -> float:
         else:
             print("No checkpoint path found. Skipping evaluation")
 
-    if cfg.predict:
-        docs = None
+    if cfg.do_predict:
+        # print(os.getcwd())
+        articles = pd.read_csv("/home/shearman/Desktop/work/NER-module/spanNER/data/articles.csv")
+        docs = [{"text":doc} for doc in articles['text'].tolist()]
         predict(cfg, docs)
 
 
