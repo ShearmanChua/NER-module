@@ -1,0 +1,35 @@
+task: docred #re3d #scierc #scirex #scierc 
+data_dir: 
+output_dir: "saved_models"
+max_length: 1024
+max_span_length: 8
+span_hidden_size: 150
+train_batch_size: 8
+eval_batch_size: 8
+negative_samples_per_batch: 10
+learning_rate: 1e-4
+warmup_proportion: 0.1
+num_epoch: 100
+eval_per_epoch: 1
+debug: False
+do_train: True
+do_eval: True
+train_shuffle: True
+entity_classes_json: data/re3d/entity_classes.json
+longformer:
+  config: longformer/config
+  model: longformer/model
+  tokenizer: longformer/tokenizer
+  autotokenizer: longformer/autotokenizer
+seed: 1234
+clearml_dataset_project_name: datasets/PURE #datasets/sci-erc #datasets/scirex #datasets/sci-erc 
+clearml_dataset_name: DOCRED #re3d #processed_json #scirex-doc #processed_json 
+clearml_dataset_tags: []
+task_tags: []
+gpu: 1
+remote: True
+early_stopping: True
+checkpointing: True
+trained_model_path: 
+ner_trained_model_path:
+queue: queue-1xV100-32ram

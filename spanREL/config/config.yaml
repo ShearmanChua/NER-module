@@ -1,0 +1,39 @@
+task: docred
+data_dir: 
+output_dir: "saved_models"
+max_length: 1024
+max_span_length: 30 #8
+span_hidden_size: 400 #150
+train_batch_size: 8
+eval_batch_size: 8
+negative_sample_ratio: 0.001 #0.01
+use_predicted_entities: False
+learning_rate: 5e-5
+warmup_proportion: 0.1
+num_epoch: 100
+eval_per_epoch: 1
+debug: False
+do_train: True
+do_eval: True
+train_shuffle: True
+longformer:
+  dataset_project: datasets/PURE
+  dataset_name: longformer
+  config: config
+  model: model
+  tokenizer: tokenizer
+  autotokenizer: autotokenizer
+bert_model_dir: 
+seed: 1234
+context_window: 64
+clearml_dataset_project_name: datasets/PURE
+clearml_dataset_name: DOCRED
+clearml_dataset_tags: []
+task_tags: []
+gpu: 1
+remote: True
+early_stopping: True
+checkpointing: True
+trained_model_path: 
+queue: queue-1xV100-32ram
+add_ner_tokens: True

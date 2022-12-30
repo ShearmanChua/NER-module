@@ -1,0 +1,26 @@
+version: '3'
+services:
+  spanrel:
+    build: ./
+    stdin_open: true
+    tty: true
+    ports:
+      - 8888:8888
+      - 6006:6006
+    command: "/bin/bash"
+    environment:
+      NVIDIA_VISIBLE_DEVICES: 0
+      CUDA_VISIBLE_DEVICES: 0
+    ulimits:
+      memlock: -1
+    shm_size: '16gb'
+    volumes:
+      - .:/spanREL
+    ipc: "host"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
