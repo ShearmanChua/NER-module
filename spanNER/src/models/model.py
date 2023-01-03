@@ -263,6 +263,7 @@ class spanNER(pl.LightningModule):
         texts = batch.pop("texts")
         tokens = batch.pop("tokens")
         loss, logits = self(**batch)
+        # print("confidence: ", logits)
         preds = torch.argmax(logits, dim=-1)
 
         inference_dataset, entity_labels, entity_loss_weights = create_inference_dataset(
@@ -295,7 +296,7 @@ class spanNER(pl.LightningModule):
                     span = self.tokenizer.convert_tokens_to_string(span_tokens)
                     indices_object = re.finditer(pattern=span, string=texts[idx])
                     indices = [index.span() for index in indices_object]
-                    span_predictions = [(index[0],index[1],span_label) for index in indices]
+                    span_predictions = [(index[0],index[1],span_label, texts[idx][index[0]:index[1]]) for index in indices]
                     predictions.extend(span_predictions)
                 except:
                     print("Unable to process tokens: ", span_tokens)
