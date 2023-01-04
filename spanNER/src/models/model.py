@@ -263,20 +263,21 @@ class spanNER(pl.LightningModule):
         texts = batch.pop("texts")
         tokens = batch.pop("tokens")
         loss, logits = self(**batch)
-        # print("confidence: ", logits)
+        logits = torch.nn.functional.softmax(logits,dim=1)
+        confidence, confidence_idxs =  torch.max(logits,1)
         preds = torch.argmax(logits, dim=-1)
 
         inference_dataset, entity_labels, entity_loss_weights = create_inference_dataset(
         self.args, [])
 
         flattened_spans = [span for sample in spans for span in sample]
-        spans_w_preds = torch.tensor([(span[0], span[1], pred.cpu().detach().item())
-                                      for span, pred in zip(flattened_spans, preds)], device=self.device)
+        spans_w_preds = torch.tensor([(span[0], span[1], pred.cpu().detach().item(), conf.cpu().detach().item())
+                                      for span, pred, conf in zip(flattened_spans, preds, confidence)], device=self.device)
 
         reconstructed_preds = [spans_w_preds[span_mask.eq(
             sample_idx)] for sample_idx in span_mask.unique()]
 
-        predictions_with_labels = [[(span[0], span[1], entity_labels[span[2]]) for span in sample.cpu().detach().tolist() if span[2] != 0]
+        predictions_with_labels = [[(int(span[0]), int(span[1]), entity_labels[int(span[2])], span[3]) for span in sample.cpu().detach().tolist() if span[2] != 0]
                                for sample in reconstructed_preds]
         
         prediction_dicts = []
@@ -290,16 +291,17 @@ class spanNER(pl.LightningModule):
 
             for span in sample_spans:
                 span_tokens = sample_tokens[span[0]:span[1]]
-                # print("span_tokens:",span_tokens)
                 span_label = span[2]
-                try:
-                    span = self.tokenizer.convert_tokens_to_string(span_tokens)
-                    indices_object = re.finditer(pattern=span, string=texts[idx])
-                    indices = [index.span() for index in indices_object]
-                    span_predictions = [(index[0],index[1],span_label, texts[idx][index[0]:index[1]]) for index in indices]
-                    predictions.extend(span_predictions)
-                except:
-                    print("Unable to process tokens: ", span_tokens)
+                confidence = round(span[3],2)
+                if confidence > self.args.ner_confidence:
+                    try:
+                        span = self.tokenizer.convert_tokens_to_string(span_tokens)
+                        indices_object = re.finditer(pattern=span, string=texts[idx])
+                        indices = [index.span() for index in indices_object]
+                        span_predictions = [(index[0],index[1],span_label, texts[idx][index[0]:index[1]], confidence) for index in indices]
+                        predictions.extend(span_predictions)
+                    except:
+                        print("Unable to process tokens: ", span_tokens)
             
             prediction_dict['predictions'] = predictions
             prediction_dicts.append(prediction_dict)

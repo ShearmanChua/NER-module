@@ -33,4 +33,5 @@ early_stopping: False
 checkpointing: True
 trained_model_path: 
 ner_trained_model_path: /home/shearman/Desktop/work/NER-module/spanNER/models/best_ner.ckpt
+ner_confidence: 0.70
 queue: queue-1xV100-32ram
