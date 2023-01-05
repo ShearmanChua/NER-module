@@ -115,6 +115,7 @@ def predict(cfg, docs: List[Dict], confidence: float = 0.7):
     writer = jsonlines.Writer(resultfile)
     writer.write_all(predictions)
 
+    return predictions
 
 @ hydra.main(config_path=os.path.join("..", "config"), config_name="config")
 def hydra_main(cfg) -> float:
@@ -154,7 +155,14 @@ def hydra_main(cfg) -> float:
         # print(os.getcwd())
         articles = pd.read_csv("/home/shearman/Desktop/work/NER-module/spanNER/data/articles.csv")
         docs = [{"text":doc} for doc in articles['text'].tolist()]
-        predict(cfg, docs)
+        predictions = predict(cfg, docs)
+        prediction_list = []
+
+        for prediction in predictions:
+            prediction_list.append(prediction['predictions'])
+
+        articles['ner_predictions'] = prediction_list
+        articles.to_csv('/home/shearman/Desktop/work/NER-module/spanNER/data/ner_predictions.csv', index=False)
 
 
 if __name__ == "__main__":

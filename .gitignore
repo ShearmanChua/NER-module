@@ -1,0 +1,7 @@
+venv
+longformer
+outputs
+spanNER/outputs
+spanREL/outputs
+spanNER/models
+spanNER/data
