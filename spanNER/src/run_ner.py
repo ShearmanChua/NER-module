@@ -12,18 +12,10 @@ import hydra
 import ipdb
 import json
 from models.model import spanNER
-from common.utils import get_dataset, get_clearml_file_path, config_clearml_paths, create_inference_dataset
+from common.utils import get_dataset, get_clearml_file_path, config_clearml_paths, create_inference_dataset, change_configs
 from clearml import Task
 import pandas as pd
 import jsonlines
-
-
-Task.force_requirements_env_freeze(
-    force=True, requirements_file="requirements.txt")
-Task.add_requirements("git+https://github.com/huggingface/datasets.git")
-# Task.add_requirements("hydra-core")
-# Task.add_requirements("pytorch-lightning")
-# Task.add_requirements("jsonlines")
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
@@ -100,7 +92,10 @@ def evaluate(cfg, model) -> None:
     trainer = pl.Trainer(gpus=cfg.gpu)
     trainer.test(model, test_loader)
 
-def predict(cfg, docs: List[Dict]):
+def predict(cfg, docs: List[Dict], confidence: float = 0.7):
+
+    change_configs(cfg, "ner_confidence", confidence)
+
     inference_dataset, entity_labels, entity_loss_weights = create_inference_dataset(
         cfg, docs)
 

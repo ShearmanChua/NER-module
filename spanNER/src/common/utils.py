@@ -29,38 +29,6 @@ def write_json(filename, file_object):
     with open(filename, "w") as file:
         file.write(json.dumps(file_object))
 
-
-def read_json_multiple_templates(jsonfile):
-    with open(jsonfile, "rb") as file:
-        file_object = [json.loads(sample) for sample in file]
-
-        for i in range(len(file_object)):
-            if len(file_object[i]["templates"]) > 0:
-                file_object[i]["templates"] = file_object[i]["templates"][0]
-                del file_object[i]["templates"]["incident_type"]
-            else:
-                file_object[i]["templates"] = {
-                    "Location": [],
-                    "PerpInd": [],
-                    "PerpOrg": [],
-                    "PhysicalTarget": [],
-                    "Weapon": [],
-                    "HumTargetCivilian": [],
-                    "HumTargetGovOfficial": [],
-                    "HumTargetMilitary": [],
-                    "HumTargetPoliticalFigure": [],
-                    "HumTargetLegal": [],
-                    "HumTargetOthers": [],
-                    "KIASingle": [],
-                    "KIAPlural": [],
-                    "KIAMultiple": [],
-                    "WIASingle": [],
-                    "WIAPlural": [],
-                    "WIAMultiple": [],
-                }
-    return file_object
-
-
 def normalize_answer(s):
     """Lower text and remove punctuation, articles and extra whitespace."""
 
@@ -216,6 +184,9 @@ def get_clearml_file_path(dataset_project,dataset_name,file_name):
 
 def config_clearml_paths(config, param_name, param):
     setattr(config, param_name, to_absolute_path(param))
+
+def change_configs(config, param_name, param):
+    setattr(config, param_name, param)
 
 def create_inference_dataset(cfg: Any, docs: List[Dict]):
     tokenizer = AutoTokenizer.from_pretrained(cfg.longformer.autotokenizer)
