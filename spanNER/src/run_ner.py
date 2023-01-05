@@ -115,7 +115,7 @@ def predict(cfg, docs: List[Dict]):
     
     trainer = pl.Trainer(gpus=cfg.gpu)
     predictions = trainer.predict(model, inference_loader)
-    print(predictions)
+    # print(predictions)
     resultfile = open("/home/shearman/Desktop/work/NER-module/spanNER/data/predictions.jsonl", "wb")
     writer = jsonlines.Writer(resultfile)
     writer.write_all(predictions)
