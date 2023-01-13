@@ -295,11 +295,13 @@ class spanNER(pl.LightningModule):
                 confidence = round(span[3],2)
                 if confidence > self.args.ner_confidence:
                     try:
+                        # print(span_tokens)
                         span = self.tokenizer.convert_tokens_to_string(span_tokens)
                         indices_object = re.finditer(pattern=span, string=texts[idx])
                         indices = [index.span() for index in indices_object]
                         span_predictions = [(index[0],index[1],span_label, texts[idx][index[0]:index[1]], confidence) for index in indices]
-                        predictions.extend(span_predictions)
+                        if span_tokens[0][0] == 'Ġ':
+                            predictions.extend(span_predictions)
                     except:
                         print("Unable to process tokens: ", span_tokens)
             

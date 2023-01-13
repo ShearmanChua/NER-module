@@ -110,12 +110,16 @@ def predict(cfg, docs: List[Dict], confidence: float = 0.7):
     
     trainer = pl.Trainer(gpus=cfg.gpu)
     predictions = trainer.predict(model, inference_loader)
+    predictions_unbatched = []
+    for prediction_batch in predictions:
+        predictions_unbatched.extend(prediction_batch)
     # print(predictions)
-    resultfile = open("/home/shearman/Desktop/work/NER-module/spanNER/data/predictions.jsonl", "wb")
-    writer = jsonlines.Writer(resultfile)
-    writer.write_all(predictions)
+    if cfg.debug:
+        resultfile = open("/home/shearman/Desktop/work/NER-module/spanNER/data/predictions.jsonl", "wb")
+        writer = jsonlines.Writer(resultfile)
+        writer.write_all(predictions_unbatched)
 
-    return predictions
+    return predictions_unbatched
 
 @ hydra.main(config_path=os.path.join("..", "config"), config_name="config")
 def hydra_main(cfg) -> float:
@@ -159,9 +163,10 @@ def hydra_main(cfg) -> float:
         prediction_list = []
 
         for prediction in predictions:
+            print(prediction)
             prediction_list.append(prediction['predictions'])
 
-        articles['ner_predictions'] = prediction_list
+        articles['predicted_ner'] = prediction_list
         articles.to_csv('/home/shearman/Desktop/work/NER-module/spanNER/data/ner_predictions.csv', index=False)
 
 
