@@ -27,7 +27,7 @@ clearml_dataset_project_name: datasets/PURE #datasets/sci-erc #datasets/scirex #
 clearml_dataset_name: DOCRED #re3d #processed_json #scirex-doc #processed_json 
 clearml_dataset_tags: []
 task_tags: []
-gpu: 0
+gpu: 1
 remote: False
 early_stopping: False
 checkpointing: True
