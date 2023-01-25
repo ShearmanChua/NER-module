@@ -17,10 +17,10 @@ services:
       memlock: -1
     shm_size: '16gb'
     volumes:
-      - ./spanNER/src:/NER_module/src
-      - ./spanNER/config:/NER_module/config
-      - ./spanNER/models:/NER_module/models
-      - ./data:/NER_module/data
+      - ../spanNER/src:/NER_module/src
+      - ../spanNER/config:/NER_module/config
+      - ../spanNER/models:/NER_module/models
+      - ../data:/NER_module/data
     deploy:
       resources:
         reservations:

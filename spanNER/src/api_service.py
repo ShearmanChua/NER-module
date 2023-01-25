@@ -19,7 +19,9 @@ from omegaconf import OmegaConf
 from run_ner import predict
 import common.utils as util
 
-initialize(config_path="spanNER/config", job_name="app")
+app = FastAPI()
+
+initialize(config_path="../config", job_name="app")
 cfg = compose(config_name="config")
 print(OmegaConf.to_yaml(cfg))
 
