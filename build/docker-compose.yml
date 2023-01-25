@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   jerex-api:
-    build: ./build/
+    build: ../
     stdin_open: true
     tty: true
     networks:

@@ -16,12 +16,12 @@ do_train: False
 do_eval: False
 do_predict: True
 train_shuffle: True
-entity_classes_json: /home/shearman/Desktop/work/NER-module/data/docred_pure/entity_classes.json
+entity_classes_json: ../data/docred_pure/entity_classes.json
 longformer:
-  config: /home/shearman/Desktop/work/NER-module/longformer/config
-  model: /home/shearman/Desktop/work/NER-module/longformer/model
-  tokenizer: /home/shearman/Desktop/work/NER-module/longformer/tokenizer
-  autotokenizer: /home/shearman/Desktop/work/NER-module/longformer/autotokenizer
+  config: ../models/longformer/config
+  model: ../models/longformer/model
+  tokenizer: ../models/longformer/tokenizer
+  autotokenizer: ../models/longformer/autotokenizer
 seed: 1234
 clearml_dataset_project_name: datasets/PURE #datasets/sci-erc #datasets/scirex #datasets/sci-erc 
 clearml_dataset_name: DOCRED #re3d #processed_json #scirex-doc #processed_json 
@@ -32,6 +32,6 @@ remote: False
 early_stopping: False
 checkpointing: True
 trained_model_path: 
-ner_trained_model_path: /home/shearman/Desktop/work/NER-module/spanNER/models/best_ner.ckpt
+ner_trained_model_path: ../models/best_ner.ckpt
 ner_confidence: 0.70
 queue: queue-1xV100-32ram
